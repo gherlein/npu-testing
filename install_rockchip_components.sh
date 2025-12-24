@@ -44,19 +44,19 @@ NC='\033[0m' # No Color
 
 # Logging functions
 log() {
-    echo -e "${BLUE}[$(date +'%T')] $1${NC}"
+    echo "[$(date +'%T')] $1"
 }
 
 success() {
-    echo -e "${GREEN}✓ $1${NC}"
+    echo "✓ $1"
 }
 
 warn() {
-    echo -e "${YELLOW}⚠ $1${NC}"
+    echo "⚠ $1"
 }
 
 error() {
-    echo -e "${RED}✗ $1${NC}"
+    echo "✗ $1"
     exit 1
 }
 
@@ -491,14 +491,14 @@ setup_podman_container() {
 setup_rknn_runtime_libs() {
     log "Setting up RKNN runtime libraries..."
 
-    local src_lib_dir="toolkit/rknn-toolkit2/rknn-toolkit-lite2/runtime/Linux/librknn_api/aarch64"
+    local src_lib_dir="toolkit/rknn-toolkit2/rknpu2/runtime/Linux/librknn_api/aarch64"
     local dest_include_dir="${SCRIPT_DIR}/include"
 
     mkdir -p "$dest_include_dir"
 
     # Copy RKNN API headers
-    if [[ -d "toolkit/rknn-toolkit2/rknn-toolkit-lite2/runtime/Linux/librknn_api/include" ]]; then
-        cp -v toolkit/rknn-toolkit2/rknn-toolkit-lite2/runtime/Linux/librknn_api/include/*.h "$dest_include_dir/"
+    if [[ -d "toolkit/rknn-toolkit2/rknpu2/runtime/Linux/librknn_api/include" ]]; then
+        cp -v toolkit/rknn-toolkit2/rknpu2/runtime/Linux/librknn_api/include/*.h "$dest_include_dir/"
     fi
 
     # Copy RKNN runtime libraries
@@ -531,9 +531,9 @@ setup_model_directories() {
 # Print usage instructions
 print_usage_instructions() {
     echo ""
-    echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}  Rockchip NPU Components Installation Complete!${NC}"
-    echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
+    echo "═══════════════════════════════════════════════════════════"
+    echo "  Rockchip NPU Components Installation Complete!"
+    echo "═══════════════════════════════════════════════════════════"
     echo ""
     echo "Components installed:"
     echo "  ✓ RKNN Toolkit ${RKNN_TOOLKIT_VERSION}"
@@ -551,46 +551,46 @@ print_usage_instructions() {
 
     if [[ "$INSTALL_MODE" == "native-arm64" ]]; then
         echo "1. Compile models on an x86_64 machine first:"
-        echo "   ${BLUE}./compile-models${NC}  (must be run on x86_64 with Podman)"
+        echo "   ./compile-models  (must be run on x86_64 with Podman)"
         echo ""
         echo "2. Copy compiled models to this ARM64 machine:"
-        echo "   ${BLUE}scp -r x86-machine:/path/to/install/ .${NC}"
+        echo "   scp -r x86-machine:/path/to/install/ ."
         echo ""
         echo "3. Build your C++ application:"
-        echo "   ${BLUE}mkdir -p build && cd build${NC}"
-        echo "   ${BLUE}cmake .. -DTARGET_SOC=rk3588${NC}"
-        echo "   ${BLUE}make${NC}"
+        echo "   mkdir -p build && cd build"
+        echo "   cmake .. -DTARGET_SOC=rk3588"
+        echo "   make"
         echo ""
         echo "4. Run inference on a JPEG image:"
-        echo "   ${BLUE}./build/object_detection_demo install/RK3588/model/yolox_s.rknn /path/to/image.jpg${NC}"
+        echo "   ./build/object_detection_demo install/RK3588/model/yolox_s.rknn /path/to/image.jpg"
         echo ""
     else
         echo "1. Compile ONNX models to RKNN format:"
-        echo "   ${BLUE}./compile-models${NC}  (uses Podman)"
+        echo "   ./compile-models  (uses Podman)"
         echo ""
         echo "2. Build the BrightSign SDK (if cross-compiling):"
-        echo "   ${BLUE}./build --extract-sdk${NC}"
-        echo "   ${BLUE}./brightsign-x86_64-cobra-toolchain-*.sh -d ./sdk -y${NC}"
+        echo "   ./build --extract-sdk"
+        echo "   ./brightsign-x86_64-cobra-toolchain-*.sh -d ./sdk -y"
         echo ""
         echo "3. Build your C++ application:"
-        echo "   ${BLUE}./build-apps${NC}"
+        echo "   ./build-apps"
         echo ""
         echo "4. Package for deployment:"
-        echo "   ${BLUE}./package${NC}"
+        echo "   ./package"
         echo ""
     fi
 
     echo "For a simple command-line app that counts people in a JPEG:"
     echo "  - See the example in src/main.cpp"
     echo "  - Build with CMake as shown above"
-    echo "  - Run: ${BLUE}./your_app install/RK3588/model/yolox_s.rknn input.jpg${NC}"
+    echo "  - Run: ./your_app install/RK3588/model/yolox_s.rknn input.jpg"
     echo ""
     echo "Podman Notes:"
     echo "  - This installation uses Podman (daemonless, rootless)"
     echo "  - Podman is compatible with Docker commands/images"
     echo "  - For existing Docker-based scripts, create alias:"
-    echo "    ${BLUE}alias docker=podman${NC}"
-    echo "  - Or use: ${BLUE}podman-docker${NC} package for automatic compatibility"
+    echo "    alias docker=podman"
+    echo "  - Or use: podman-docker package for automatic compatibility"
     echo ""
     echo "Documentation:"
     echo "  - README.md - Complete project documentation"
@@ -604,10 +604,10 @@ print_usage_instructions() {
 main() {
     local start_time=$(date +%s)
 
-    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  Rockchip NPU Components Installation Script${NC}"
-    echo -e "${BLUE}  (Podman Edition - Daemonless & Rootless)${NC}"
-    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo "═══════════════════════════════════════════════════════════"
+    echo "  Rockchip NPU Components Installation Script"
+    echo "  (Podman Edition - Daemonless & Rootless)"
+    echo "═══════════════════════════════════════════════════════════"
     echo ""
 
     parse_args "$@"
