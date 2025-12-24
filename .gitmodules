@@ -1,0 +1,3 @@
+[submodule "brightsign-npu-object-extension"]
+	path = brightsign-npu-object-extension
+	url = git@github.com:brightsign/brightsign-npu-object-extension.git
