@@ -281,6 +281,7 @@ install_cross_compile_deps() {
     success "Cross-compilation dependencies installed"
 }
 
+
 # Clone or update RKNN Toolkit
 setup_rknn_toolkit() {
     log "Setting up RKNN Toolkit ${RKNN_TOOLKIT_VERSION}..."
@@ -288,13 +289,43 @@ setup_rknn_toolkit() {
     mkdir -p toolkit
 
     # Clone or update rknn-toolkit2
-    if [[ -d "toolkit/rknn-toolkit2" ]]; then
-        log "RKNN Toolkit already exists, updating..."
+    if [[ -d "toolkit/rknn-toolkit2/.git" ]]; then
+        log "RKNN Toolkit already exists, checking version..."
         pushd toolkit/rknn-toolkit2 > /dev/null
-        git fetch || warn "Failed to fetch updates"
-        git checkout ${RKNN_TOOLKIT_VERSION} || warn "Failed to checkout ${RKNN_TOOLKIT_VERSION}"
-        popd > /dev/null
+        
+        # Check current state
+        current_ref=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+        log "Current ref: $current_ref"
+        
+        # Try to fetch tags (may fail on shallow clone)
+        if ! git fetch --tags 2>/dev/null; then
+            log "Shallow clone detected, converting to full clone..."
+            if [[ -f .git/shallow ]]; then
+                git fetch --unshallow || warn "Failed to unshallow"
+            fi
+            git fetch --tags || warn "Failed to fetch tags"
+        fi
+        
+        # Try to checkout the version
+        if ! git checkout ${RKNN_TOOLKIT_VERSION} 2>/dev/null; then
+            warn "Cannot checkout ${RKNN_TOOLKIT_VERSION}, re-cloning fresh..."
+            popd > /dev/null
+            rm -rf toolkit/rknn-toolkit2
+            log "Cloning RKNN Toolkit ${RKNN_TOOLKIT_VERSION}..."
+            pushd toolkit > /dev/null
+            git clone https://github.com/airockchip/rknn-toolkit2.git \
+                --depth 1 --branch ${RKNN_TOOLKIT_VERSION} || error "Failed to clone rknn-toolkit2"
+            popd > /dev/null
+        else
+            popd > /dev/null
+        fi
     else
+        # Remove non-git directory if exists
+        if [[ -d "toolkit/rknn-toolkit2" ]]; then
+            warn "Found non-git toolkit directory, removing..."
+            rm -rf toolkit/rknn-toolkit2
+        fi
+        
         log "Cloning RKNN Toolkit ${RKNN_TOOLKIT_VERSION}..."
         pushd toolkit > /dev/null
         git clone https://github.com/airockchip/rknn-toolkit2.git \
@@ -312,13 +343,43 @@ setup_rknn_model_zoo() {
     mkdir -p toolkit
 
     # Clone or update rknn_model_zoo
-    if [[ -d "toolkit/rknn_model_zoo" ]]; then
-        log "RKNN Model Zoo already exists, updating..."
+    if [[ -d "toolkit/rknn_model_zoo/.git" ]]; then
+        log "RKNN Model Zoo already exists, checking version..."
         pushd toolkit/rknn_model_zoo > /dev/null
-        git fetch || warn "Failed to fetch updates"
-        git checkout ${RKNN_TOOLKIT_VERSION} || warn "Failed to checkout ${RKNN_TOOLKIT_VERSION}"
-        popd > /dev/null
+        
+        # Check current state
+        current_ref=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+        log "Current ref: $current_ref"
+        
+        # Try to fetch tags (may fail on shallow clone)
+        if ! git fetch --tags 2>/dev/null; then
+            log "Shallow clone detected, converting to full clone..."
+            if [[ -f .git/shallow ]]; then
+                git fetch --unshallow || warn "Failed to unshallow"
+            fi
+            git fetch --tags || warn "Failed to fetch tags"
+        fi
+        
+        # Try to checkout the version
+        if ! git checkout ${RKNN_TOOLKIT_VERSION} 2>/dev/null; then
+            warn "Cannot checkout ${RKNN_TOOLKIT_VERSION}, re-cloning fresh..."
+            popd > /dev/null
+            rm -rf toolkit/rknn_model_zoo
+            log "Cloning RKNN Model Zoo ${RKNN_TOOLKIT_VERSION}..."
+            pushd toolkit > /dev/null
+            git clone https://github.com/airockchip/rknn_model_zoo.git \
+                --depth 1 --branch ${RKNN_TOOLKIT_VERSION} || error "Failed to clone rknn_model_zoo"
+            popd > /dev/null
+        else
+            popd > /dev/null
+        fi
     else
+        # Remove non-git directory if exists
+        if [[ -d "toolkit/rknn_model_zoo" ]]; then
+            warn "Found non-git model zoo directory, removing..."
+            rm -rf toolkit/rknn_model_zoo
+        fi
+        
         log "Cloning RKNN Model Zoo ${RKNN_TOOLKIT_VERSION}..."
         pushd toolkit > /dev/null
         git clone https://github.com/airockchip/rknn_model_zoo.git \
